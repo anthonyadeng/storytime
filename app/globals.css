@@ -30,4 +30,51 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .no-scrollbar {
+    overflow: auto; /* Allow scrolling */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
+
+  .markdown {
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+  }
+
+  .markdown pre {
+    background-color: #f5f5f5;
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    /* Ensures proper indentation */
+  }
+
+  .markdown code {
+    background-color: #f5f5f5;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+
+  .markdown blockquote {
+    margin-left: 1.5em;
+    padding-left: 1em;
+    border-left: 4px solid #ccc;
+  }
+
+  .markdown ul,
+  .markdown ol {
+    margin-left: 1.5em;
+  }
+  .markdown li {
+    list-style-type: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    .markdown {
+      color: #fffffffd;
+    }
+  }
 }
