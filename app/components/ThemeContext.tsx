@@ -2,31 +2,35 @@
 import { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { ReactNode } from 'react';
 
-interface ThemeContextType {
-  theme: string;
-  toggleTheme: () => void;
+interface GlobalContextType {
+  colorMode: string;
+  toggleColorMode: () => void;
   scrollPos: number;
   setCurrScrollPos: (arg0: number) => void;
 }
 
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
-  toggleTheme: () => {},
+const GlobalContext = createContext<GlobalContextType>({
+  colorMode: 'dark',
+  toggleColorMode: () => {},
   scrollPos: 0,
   setCurrScrollPos: () => {},
 });
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState('dark');
+export const GlobalContextProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [colorMode, setColorMode] = useState('dark');
   const [scrollPos, setScrollPos] = useState(0);
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? 'dark' : 'light');
+      setColorMode(e.matches ? 'dark' : 'light');
     };
 
     // Set initial theme
-    setTheme(mediaQuery.matches ? 'dark' : 'light');
+    setColorMode(mediaQuery.matches ? 'dark' : 'light');
 
     // Listen for changes to the prefers-color-scheme media query
     mediaQuery.addEventListener('change', handleChange);
@@ -36,20 +40,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       mediaQuery.removeEventListener('change', handleChange);
     };
   }, []);
-  const toggleTheme = () => {
+  const toggleColorMode = () => {
     console.log('toggle');
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setColorMode((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
   const setCurrScrollPos = (input: number) => {
     setScrollPos(input);
   };
   return (
-    <ThemeContext.Provider
-      value={{ theme, toggleTheme, scrollPos, setCurrScrollPos }}
+    <GlobalContext.Provider
+      value={{ colorMode, toggleColorMode, scrollPos, setCurrScrollPos }}
     >
       {children}
-    </ThemeContext.Provider>
+    </GlobalContext.Provider>
   );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useGlobalContext = () => useContext(GlobalContext);

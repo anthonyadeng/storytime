@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Roboto, Crimson_Text } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from './components/ThemeContext';
+import { GlobalContextProvider } from './components/ThemeContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -34,11 +34,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body
-        className={`${inter.variable} ${roboto.variable} ${crimsonText.variable} overflow-hidden no-scrollbar`}
-      >
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
+      <GlobalContextProvider>
+        <body
+          className={`${inter.variable} ${roboto.variable} ${crimsonText.variable} no-scrollbar`}
+        >
+          {children}
+        </body>
+      </GlobalContextProvider>
     </html>
   );
 }

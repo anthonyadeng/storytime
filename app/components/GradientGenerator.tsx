@@ -1,3 +1,4 @@
+import { over } from 'lodash';
 import { useEffect, useCallback, useState } from 'react';
 
 interface GradientProps {
@@ -28,7 +29,7 @@ const Gradient: React.FC<GradientProps> = ({
 
   const style = {
     position: 'absolute' as 'absolute',
-    zIndex: -1,
+    zIndex: 55,
     top: `${screenYPos}px`,
     left: `${screenXPos}px`,
     width: `${width}px`,
@@ -37,7 +38,9 @@ const Gradient: React.FC<GradientProps> = ({
   };
 
   return (
-    <div className='blur-2xl opacity-10 rounded-full ' style={style}></div>
+    <div className='blur-2xl opacity-30 rounded-full ' style={style}>
+      FD
+    </div>
   );
 };
 
@@ -72,7 +75,7 @@ export const GradientGenerator: React.FC<GradientGeneratorProps> = ({
       //generate hex with alpha
       // Ensure the gradient does not extend past the scrollHeight
       if (screenYPos + height > screenHeight) {
-        height = screenHeight - screenYPos;
+        height = screenHeight - screenYPos - 500;
       }
 
       // Ensure the gradient does not extend past the scrollWidth
@@ -101,5 +104,5 @@ export const GradientGenerator: React.FC<GradientGeneratorProps> = ({
     setGradients(newGradients);
   }, [screenHeight, screenWidth, numberOf, generateHexWithAlpha]);
 
-  return <div className='overflow-hidden w-full h-full'>{gradients}</div>;
+  return <div className='absolute w-full h-full'>{gradients} FFFFFFFFFF</div>;
 };
