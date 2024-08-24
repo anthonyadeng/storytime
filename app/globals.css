@@ -32,7 +32,7 @@ body {
   }
 
   .no-scrollbar {
-    overflow-y: auto; /* Allow scrolling */
+    overflow: auto; /* Allow scrolling */
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -49,6 +49,7 @@ body {
     background-color: #f5f5f5;
     padding: 1em;
     border-radius: 5px;
+
     /* Ensures proper indentation */
   }
 

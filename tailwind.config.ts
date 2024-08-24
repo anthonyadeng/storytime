@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  mode: 'jit',
   darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -36,6 +37,8 @@ const config: Config = {
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'gradient-conic-top':
           'conic-gradient(from 93deg, var(--tw-gradient-stops))',
+        'gradient-linear':
+          'linear-gradient(from 90deg, var(--tw-gradient-stops))',
 
         'gradient-conic-top-both':
           'conic-gradient(from 93deg, var(--tw-gradient-stops)), conic-gradient(from -89deg, var(--tw-gradient-stops))',

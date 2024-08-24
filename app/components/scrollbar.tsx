@@ -8,6 +8,7 @@ import React, {
 import { useTheme } from './ThemeContext';
 import { throttle } from 'lodash';
 import Image from 'next/image';
+import { GradientGenerator } from './GradientGenerator';
 const Scrollbar = () => {
   const { toggleTheme, setCurrScrollPos } = useTheme();
   const isDragging = useRef(false);
@@ -50,7 +51,7 @@ const Scrollbar = () => {
     });
   }, [setCurrScrollPos]);
 
-  const throttledMoveDiv = useMemo(() => throttle(moveDiv, 5), [moveDiv]);
+  const throttledMoveDiv = useMemo(() => throttle(moveDiv, 25), [moveDiv]);
 
   const throttledAnimationFrame = useCallback(() => {
     throttledMoveDiv();
