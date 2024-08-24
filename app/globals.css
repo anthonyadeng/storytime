@@ -30,10 +30,11 @@ body {
   .text-balance {
     text-wrap: balance;
   }
-
+  /*
   .no-scrollbar {
-    overflow: auto; /* Allow scrolling */
-  }
+    overflow: auto;  Allow scrolling 
+}
+    */
 
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Hide scrollbar */

@@ -10,25 +10,27 @@ import { throttle } from 'lodash';
 import Image from 'next/image';
 import { GradientGenerator } from './GradientGenerator';
 const Scrollbar = () => {
-  const { toggleTheme, setCurrScrollPos } = useTheme();
+  const { toggleTheme, setCurrScrollPos, scrollPos } = useTheme();
   const isDragging = useRef(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const selfRef = useRef<HTMLDivElement>(null);
   const cursorPositionRef = useRef({ x: 0, y: 0 });
-  const speed = 0.25; // Speed in pixels per frame
+  const speed = 0.5; // Speed in pixels per frame
   const maxDistance = 25;
   const animationFrameId = useRef<number | null>(null);
   const moveDiv = useCallback(() => {
-    if (!isDragging.current) {
-      return;
-    }
+    if (!isDragging.current) return;
+
     setPosition((prevPosition) => {
+      if (selfRef.current == null) return { top: 0, left: 0 };
       const dx =
         cursorPositionRef.current.x -
-        (prevPosition.left + (selfRef.current?.offsetWidth || 0) / 2);
+        (selfRef.current.getBoundingClientRect().left +
+          (selfRef.current?.offsetWidth || 0) / 2);
       const dy =
         cursorPositionRef.current.y -
-        (prevPosition.top + (selfRef.current?.offsetHeight || 0) / 2);
+        (selfRef.current.getBoundingClientRect().top +
+          (selfRef.current?.offsetHeight || 0) / 2);
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < maxDistance) {
@@ -41,9 +43,7 @@ const Scrollbar = () => {
       const offsetHeight = selfRef.current?.offsetHeight || 0;
       const offsetWidth = selfRef.current?.offsetWidth || 0;
 
-      setCurrScrollPos(
-        Math.max(0, Math.min(1, newTop / (window.innerHeight - offsetHeight)))
-      );
+      setCurrScrollPos(Math.max(0, Math.min(1, newTop / window.innerHeight)));
       return {
         top: Math.max(0, Math.min(window.innerHeight - offsetHeight, newTop)),
         left: Math.max(0, Math.min(window.innerWidth - offsetWidth, newLeft)),
@@ -65,12 +65,10 @@ const Scrollbar = () => {
 
   const handleMouseUp = useCallback(
     (e: MouseEvent) => {
-      console.log('mouseup');
       e.preventDefault();
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       isDragging.current = false;
-      console.log(isDragging.current);
       if (animationFrameId.current !== null) {
         cancelAnimationFrame(animationFrameId.current);
       }
@@ -82,7 +80,6 @@ const Scrollbar = () => {
     (e: React.MouseEvent) => {
       e.preventDefault();
       isDragging.current = true;
-      console.log('mousedown');
       cursorPositionRef.current = { x: e.clientX, y: e.clientY };
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
@@ -90,7 +87,19 @@ const Scrollbar = () => {
     },
     [handleMouseMove, handleMouseUp, throttledAnimationFrame]
   );
-
+  useEffect(() => {
+    if (isDragging.current) return;
+    setPosition((prevPosition) => {
+      return {
+        top: Math.min(
+          window.innerHeight - (selfRef.current?.offsetHeight || 0),
+          scrollPos * window.innerHeight
+        ),
+        left: prevPosition.left,
+      };
+    });
+    return () => {};
+  }, [scrollPos]);
   return (
     <div
       id='scrollbar'

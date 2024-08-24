@@ -1,41 +1,63 @@
 'use client';
-import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import markdownContent from '../content/story.md';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTheme } from './components/ThemeContext';
 import Draggable from './components/scrollbar';
 import { GradientGenerator } from './components/GradientGenerator';
+import { debounce, throttle } from 'lodash';
 export default function Home() {
-  const { theme, scrollPos } = useTheme();
+  const { theme, scrollPos, setCurrScrollPos } = useTheme();
   const [scrollHeight, setScrollHeight] = useState(0);
   const [scrollWidth, setScrollWidth] = useState(0);
-  const [scrollPosState, setScrollPosState] = useState(0);
   const targetRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    console.log(scrollPos, scrollHeight);
     window.scrollTo({
       top: scrollHeight * scrollPos,
       behavior: 'auto',
     });
   }, [scrollHeight, scrollPos]);
+
+  const updateScrollSize = useCallback(() => {
+    const newScrollHeight = document.documentElement.scrollHeight;
+    const newScrollWidth = document.documentElement.clientWidth;
+
+    if (newScrollHeight !== scrollHeight) {
+      setScrollHeight(newScrollHeight);
+    }
+    if (newScrollWidth !== scrollWidth) {
+      setScrollWidth(newScrollWidth);
+    }
+  }, [scrollHeight, scrollWidth]);
+
+  const throttledUpdateScrollSize = useMemo(
+    () => debounce(updateScrollSize, 100),
+    [updateScrollSize]
+  );
+  const handleWheel = useCallback(
+    (event: WheelEvent) => {
+      if (event.deltaY < 0) {
+        setCurrScrollPos(Math.max(0, scrollPos - 0.01));
+      } else if (event.deltaY > 0) {
+        setCurrScrollPos(Math.min(1, scrollPos + 0.01));
+      }
+    },
+    [scrollPos, setCurrScrollPos]
+  );
+
+  const throttledHandleWheel = useMemo(() => throttle(handleWheel, 100), []);
   useEffect(() => {
-    const updateScroll = () => {
-      setScrollHeight(document.documentElement.scrollHeight);
-      setScrollWidth(document.documentElement.clientWidth);
-    };
+    throttledUpdateScrollSize();
 
-    // Update scroll height after the component mounts
-    updateScroll();
-
-    // Optionally, update scroll height on window resize
-    window.addEventListener('resize', updateScroll);
+    window.addEventListener('resize', throttledUpdateScrollSize);
+    window.addEventListener('wheel', handleWheel);
 
     return () => {
-      window.removeEventListener('resize', updateScroll);
+      window.removeEventListener('resize', throttledUpdateScrollSize);
+      window.removeEventListener('wheel', handleWheel);
     };
-  }, []);
-  console.log('f', scrollHeight, scrollWidth);
+  }, [handleWheel, throttledUpdateScrollSize]);
   return (
     <main
       className={`${theme} overflow-hidden  flex min-h-screen flex-col items-center justify-between p-24`}

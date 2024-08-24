@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${inter.variable} ${roboto.variable} ${crimsonText.variable} overflow-x-hidden no-scrollbar`}
+        className={`${inter.variable} ${roboto.variable} ${crimsonText.variable} overflow-hidden no-scrollbar`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>
