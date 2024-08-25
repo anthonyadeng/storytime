@@ -15,10 +15,12 @@ const Scrollbar = () => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const selfRef = useRef<HTMLDivElement | null>(null);
   const mainRef = useRef<HTMLDivElement | null>(null);
+  const windowHeightRef = useRef<number | null>(null);
   const latestTargetScrollTop = useRef<number | null>(0);
   const cursorPositionRef = useRef({ x: 0, y: 0 });
-  const speed = 0.5; // Speed in pixels per frame
-  const maxDistance = 25;
+  const minSpeed = 0.25;
+  const maxSpeed = 1;
+  const maxDistance = 15;
   const animationFrameId = useRef<number | null>(null);
   const animationFrameId2 = useRef<number | null>(null);
   const animationFrameIds = useRef<number[]>([]);
@@ -31,28 +33,38 @@ const Scrollbar = () => {
     mainRef.current = document.getElementsByTagName(
       'main'
     )[0] as HTMLDivElement;
+    windowHeightRef.current =
+      window.innerHeight -
+      (selfRef.current?.getBoundingClientRect().height || 0);
+    console.log(
+      'windowHeightRef',
+      windowHeightRef.current,
+      'windowHeight',
+      window.innerHeight,
+      'selfRef',
+      selfRef.current?.getBoundingClientRect().height
+    );
   }, []);
 
   const animateScroll = useCallback(() => {
     if (mainRef.current === null || latestTargetScrollTop.current === null) {
-      console.log('mainRef or latestTargetScrollTop is null');
       return;
     }
 
     const currentScrollTop = mainRef.current.scrollTop;
     const targetScrollTop = latestTargetScrollTop.current;
     const distance = targetScrollTop - currentScrollTop;
-    const speed = 0.1; // Adjust this value to control the speed of the interpolation
+    const speed = 0.5; // Adjust this value to control the speed of the interpolation
 
-    console.log('Current scroll top:', currentScrollTop);
-    console.log('Target scroll top:', targetScrollTop);
-    console.log('Distance:', distance);
+    // console.log('Current scroll top:', currentScrollTop);
+    // console.log('Target scroll top:', targetScrollTop);
+    // console.log('Distance:', distance);
 
-    if (Math.abs(distance) >= 1) {
+    if (Math.abs(distance) >= 0.5) {
       mainRef.current.scrollTop = currentScrollTop + distance * speed;
-      console.log('Scrolling to:', mainRef.current.scrollTop);
+      // console.log('Scrolling to:', mainRef.current.scrollTop);
     } else {
-      console.log('Reached target');
+      // console.log('Reached target');
       mainRef.current.scrollTop = targetScrollTop;
       animationFrameId.current = null;
     }
@@ -63,16 +75,14 @@ const Scrollbar = () => {
 
   const animateScrollTo = useCallback(
     (newPos: number) => {
-      console.log('animateScrollTo called with newPos:', newPos);
+      // console.log('animateScrollTo called with newPos:', newPos);
 
       if (mainRef.current === null) {
-        console.log('mainRef is null');
+        // console.log('mainRef is null');
         return;
       }
 
       latestTargetScrollTop.current = newPos * mainRef.current.scrollHeight;
-      console.log('New target scroll top:', latestTargetScrollTop.current);
-
       if (animationFrameId2.current === null) {
         animationFrameId2.current = requestAnimationFrame(animateScroll);
         animationFrameIds.current.push(animationFrameId2.current);
@@ -100,17 +110,28 @@ const Scrollbar = () => {
       }
 
       const angle = Math.atan2(dy, dx);
+      const speed = Math.min(maxSpeed, Math.max(minSpeed, distance / 222));
       const newLeft = prevPosition.left + Math.cos(angle) * speed;
-      const newTop = prevPosition.top + Math.sin(angle) * speed;
       const offsetHeight = selfRef.current?.offsetHeight || 0;
+      const newTop = Math.min(
+        0.9424 * windowHeightRef.current!,
+        prevPosition.top + Math.sin(angle) * speed
+      );
       const offsetWidth = selfRef.current?.offsetWidth || 0;
-
-      scrollTo.current = newTop / window.innerHeight || 0;
-
+      console.log(
+        'window.innerHeight',
+        window.innerHeight,
+        'windowheightref',
+        windowHeightRef.current
+      );
+      const scrollcurr1 = newTop / windowHeightRef.current!;
+      const scrollcurr2 = newTop / window.innerHeight;
+      console.log('scrollCurr', scrollcurr1, 'scrollCurr2', scrollcurr1);
+      scrollTo.current = Math.max(0, Math.min(1, scrollcurr1));
       animateScrollTo(scrollTo.current);
 
       return {
-        top: scrollTo.current * window.innerHeight,
+        top: scrollTo.current * windowHeightRef.current!,
         left: Math.max(0, Math.min(window.innerWidth - offsetWidth, newLeft)),
       };
     });
@@ -162,14 +183,11 @@ const Scrollbar = () => {
 
   useEffect(() => {
     if (isDragging.current) return;
-    const currHeight = window.innerHeight;
+    const windowHeight = windowHeightRef.current!;
     console.log('scrollPos', scrollPos);
     setPosition((prevPosition) => {
       return {
-        top: Math.min(
-          currHeight - (selfRef.current?.offsetHeight || 0),
-          scrollPos * currHeight
-        ),
+        top: scrollPos * windowHeight,
         left: prevPosition.left,
       };
     });

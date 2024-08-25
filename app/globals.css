@@ -14,7 +14,7 @@
 }
 @layer components {
   .animated-position {
-    @apply transition-all duration-500;
+    @apply transition-all duration-75;
   }
 }
 @layer utilities {
@@ -35,7 +35,9 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Hide scrollbar */
   }
-
+  .markdown > * {
+    all: revert;
+  }
   .markdown {
     line-height: 1.6;
 
