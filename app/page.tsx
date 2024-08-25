@@ -4,6 +4,7 @@ import markdownContent from '../content/story.md';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useGlobalContext } from './components/ThemeContext';
 import Draggable from './components/scrollbar';
+
 import { GradientGenerator } from './components/GradientGenerator';
 import { debounce, throttle } from 'lodash';
 export default function Home() {
@@ -22,8 +23,8 @@ export default function Home() {
   // }, [scrollHeight, scrollPos]);
 
   const updateScrollSize = useCallback(() => {
-    const newScrollHeight =
-      document.getElementsByTagName('main')[0].scrollHeight;
+    if (targetRef.current === null) return;
+    const newScrollHeight = targetRef.current.scrollHeight;
     const newScrollWidth = document.documentElement.clientWidth;
     setScrollHeight(newScrollHeight);
     if (newScrollWidth !== scrollWidth) {
@@ -47,24 +48,22 @@ export default function Home() {
   //   [handleWheel]
   // );
   const handleScroll = useCallback(() => {
-    const newScrollPos =
-      document.getElementsByTagName('main')[0].scrollTop / scrollHeight;
+    if (targetRef.current === null) return;
+    const newScrollPos = targetRef.current.scrollTop / scrollHeight;
     setCurrScrollPos(newScrollPos);
   }, [scrollHeight, setCurrScrollPos]);
 
   useEffect(() => {
+    if (targetRef.current === null) return;
+    const mainRef = targetRef.current;
     updateScrollSize();
-    document
-      .getElementsByTagName('main')[0]
-      .addEventListener('scroll', handleScroll);
+    mainRef.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', updateScrollSize);
     // window.addEventListener('wheel', throttledHandleWheel);
 
     return () => {
       window.removeEventListener('resize', updateScrollSize);
-      document
-        .getElementsByTagName('main')[0]
-        .removeEventListener('scroll', handleScroll);
+      mainRef.removeEventListener('scroll', handleScroll);
       // window.removeEventListener('wheel', throttledHandleWheel);
     };
   }, [handleScroll, updateScrollSize]);
